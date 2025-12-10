@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { User, Package, Order, OrderStatus } from '../types';
-import { packagesApi, ordersApi, ApiError } from '../services/api';
+import { packagesApi, ordersApi, authApi, ApiError } from '../services/api';
 import { Check, User as UserIcon, LogOut, Clock, AlertCircle, FileText, RefreshCw } from './Icons';
 
 interface DashboardProps {
@@ -32,6 +32,13 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onSelectPackage }
   const [loading, setLoading] = useState(true);
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [subscription, setSubscription] = useState<{
+    currentPlan?: string;
+    planExpiresAt?: number;
+  }>({
+    currentPlan: user.currentPlan,
+    planExpiresAt: user.planExpiresAt,
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -58,6 +65,18 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onSelectPackage }
       } finally {
         setOrdersLoading(false);
       }
+
+      try {
+        const sub = await authApi.getSubscription();
+        if (sub.hasActiveSubscription && sub.subscription) {
+          setSubscription({
+            currentPlan: sub.subscription.package.name,
+            planExpiresAt: new Date(sub.subscription.endDate).getTime(),
+          });
+        }
+      } catch (err) {
+        console.error('Failed to fetch subscription:', err);
+      }
     };
     fetchData();
   }, []);
@@ -76,14 +95,14 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onSelectPackage }
               <h2 className="text-2xl font-bold text-white">{user.name}</h2>
               <p className="text-slate-400">{user.email}</p>
               <div className={`mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm ${
-                user.planExpiresAt
+                subscription.planExpiresAt
                   ? 'bg-green-500/20 border border-green-500/30 text-green-400'
                   : 'bg-slate-800 border border-slate-700 text-slate-400'
               }`}>
                 <Clock className="w-4 h-4" />
                 <span>
-                  {user.planExpiresAt
-                    ? `${user.currentPlan || 'Đã kích hoạt'} - HSD: ${new Date(user.planExpiresAt).toLocaleDateString('vi-VN')}`
+                  {subscription.planExpiresAt
+                    ? `${subscription.currentPlan || 'Đã kích hoạt'} - HSD: ${new Date(subscription.planExpiresAt).toLocaleDateString('vi-VN')}`
                     : 'Chưa có gói dịch vụ'
                   }
                 </span>

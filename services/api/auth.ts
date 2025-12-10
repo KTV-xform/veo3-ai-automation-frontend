@@ -49,9 +49,6 @@ export const authApi = {
     // Store access token in memory
     apiClient.setAccessToken(response.access_token);
 
-    // Mark that we have a token (for page refresh check)
-    localStorage.setItem(TOKEN_STORAGE_KEY, 'true');
-
     // Return user data
     return {
       id: response.user.id,
@@ -99,15 +96,17 @@ export const authApi = {
         }>('/users/subscription').catch(() => ({ hasActiveSubscription: false })),
       ]);
 
+      const subscriptionData = 'subscription' in subscription ? subscription.subscription : undefined;
+      
       return {
         id: user.id,
         email: user.email,
         name: user.name,
         role: user.role as UserRole,
         avatar: user.avatar || 'https://picsum.photos/100/100',
-        currentPlan: subscription.subscription?.package?.name,
-        planExpiresAt: subscription.subscription?.endDate
-          ? new Date(subscription.subscription.endDate).getTime()
+        currentPlan: subscriptionData?.package?.name,
+        planExpiresAt: subscriptionData?.endDate
+          ? new Date(subscriptionData.endDate).getTime()
           : undefined,
       };
     } catch (error) {
@@ -135,7 +134,7 @@ export const authApi = {
    * Check if user has stored token (for page refresh)
    */
   hasStoredToken: (): boolean => {
-    return localStorage.getItem(TOKEN_STORAGE_KEY) === 'true';
+    return !!apiClient.getAccessToken();
   },
 
   /**
@@ -143,5 +142,19 @@ export const authApi = {
    */
   clearStoredToken: () => {
     localStorage.removeItem(TOKEN_STORAGE_KEY);
+  },
+
+  /**
+   * Get current subscription status
+   */
+  getSubscription: async (): Promise<{
+    hasActiveSubscription: boolean;
+    subscription?: {
+      licenseKey: string;
+      package: { name: string };
+      endDate: string;
+    };
+  }> => {
+    return get('/users/subscription');
   },
 };

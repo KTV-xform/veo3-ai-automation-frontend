@@ -1,13 +1,10 @@
-// API Client - Base HTTP client for all API calls
-
-// In dev mode, Vite proxy handles /api -> backend
-// In production, use VITE_API_URL directly
 const API_BASE = import.meta.env.PROD && import.meta.env.VITE_API_URL
   ? `${import.meta.env.VITE_API_URL}/api`
   : '/api';
 
-// Token storage in memory (secure - not localStorage)
-let accessToken: string | null = null;
+const TOKEN_KEY = 'veo3_access_token';
+
+let accessToken: string | null = sessionStorage.getItem(TOKEN_KEY);
 
 // Session invalidation callback
 let onSessionInvalid: (() => void) | null = null;
@@ -15,6 +12,11 @@ let onSessionInvalid: (() => void) | null = null;
 export const apiClient = {
   setAccessToken: (token: string | null) => {
     accessToken = token;
+    if (token) {
+      sessionStorage.setItem(TOKEN_KEY, token);
+    } else {
+      sessionStorage.removeItem(TOKEN_KEY);
+    }
   },
 
   getAccessToken: () => accessToken,
@@ -25,6 +27,7 @@ export const apiClient = {
 
   clearAuth: () => {
     accessToken = null;
+    sessionStorage.removeItem(TOKEN_KEY);
   },
 };
 
