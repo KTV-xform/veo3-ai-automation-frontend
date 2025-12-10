@@ -43,7 +43,7 @@ interface CreateOrderRequest {
   paymentMethod?: string;
 }
 
-interface PaymentInfo {
+export interface PaymentInfo {
   qrCode: string;
   bankInfo: {
     bankName: string;

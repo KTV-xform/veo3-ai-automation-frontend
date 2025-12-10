@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Package, Order, OrderStatus } from '../types';
-import { ordersApi, ApiError } from '../services/api';
+import { ordersApi, ApiError, PaymentInfo } from '../services/api';
 import { ArrowLeft, CheckCircle, Copy, AlertCircle, CreditCard, RefreshCw } from 'lucide-react';
 import { User } from '../types';
 
@@ -94,7 +94,7 @@ const Checkout: React.FC<CheckoutProps> = ({ user, pkg, onBack, onSuccess }) => 
           </div>
           <h2 className="text-2xl font-bold text-white mb-2">Thanh toán thành công!</h2>
           <p className="text-slate-400 mb-8">
-            Đơn hàng của bạn đang được xử lý. Admin sẽ kiểm tra và gửi License Key cho bạn qua Email trong vòng 15 phút - 2 giờ.
+            Đơn hàng của bạn đang được xử lý. Admin sẽ kiểm tra và gửi License Key cho bạn trong vòng 15 phút - 2 giờ.
           </p>
           <div className="bg-slate-800/50 p-4 rounded-xl text-left mb-6">
             <p className="text-sm text-slate-400 mb-1">Mã đơn hàng:</p>
@@ -104,7 +104,7 @@ const Checkout: React.FC<CheckoutProps> = ({ user, pkg, onBack, onSuccess }) => 
              <button onClick={onSuccess} className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold">
               Về Trang Chủ
             </button>
-            <a href="https://t.me/support_veo3" target="_blank" rel="noreferrer" className="block w-full py-3 bg-slate-800 text-slate-300 rounded-xl font-medium hover:bg-slate-700">
+            <a href="https://t.me/VeoTube" target="_blank" rel="noreferrer" className="block w-full py-3 bg-slate-800 text-slate-300 rounded-xl font-medium hover:bg-slate-700">
               Liên hệ Hỗ trợ (Telegram)
             </a>
           </div>
