@@ -75,9 +75,18 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onSelectPackage }
             <div>
               <h2 className="text-2xl font-bold text-white">{user.name}</h2>
               <p className="text-slate-400">{user.email}</p>
-              <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-sm">
-                <Clock className="w-4 h-4 text-brand-400" />
-                <span>Trạng thái: {user.planExpiresAt ? 'Đã kích hoạt' : 'Chưa có gói dịch vụ'}</span>
+              <div className={`mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm ${
+                user.planExpiresAt
+                  ? 'bg-green-500/20 border border-green-500/30 text-green-400'
+                  : 'bg-slate-800 border border-slate-700 text-slate-400'
+              }`}>
+                <Clock className="w-4 h-4" />
+                <span>
+                  {user.planExpiresAt
+                    ? `${user.currentPlan || 'Đã kích hoạt'} - HSD: ${new Date(user.planExpiresAt).toLocaleDateString('vi-VN')}`
+                    : 'Chưa có gói dịch vụ'
+                  }
+                </span>
               </div>
             </div>
           </div>

@@ -77,17 +77,27 @@ export const authApi = {
   },
 
   /**
-   * Get current user info
+   * Get current user info with subscription
    */
   getMe: async (): Promise<AuthUser | null> => {
     try {
-      const user = await get<{
-        id: string;
-        email: string;
-        name: string;
-        role: string;
-        avatar?: string;
-      }>('/auth/me');
+      const [user, subscription] = await Promise.all([
+        get<{
+          id: string;
+          email: string;
+          name: string;
+          role: string;
+          avatar?: string;
+        }>('/auth/me'),
+        get<{
+          hasActiveSubscription: boolean;
+          subscription?: {
+            licenseKey: string;
+            package: { name: string };
+            endDate: string;
+          };
+        }>('/users/subscription').catch(() => ({ hasActiveSubscription: false })),
+      ]);
 
       return {
         id: user.id,
@@ -95,6 +105,10 @@ export const authApi = {
         name: user.name,
         role: user.role as UserRole,
         avatar: user.avatar || 'https://picsum.photos/100/100',
+        currentPlan: subscription.subscription?.package?.name,
+        planExpiresAt: subscription.subscription?.endDate
+          ? new Date(subscription.subscription.endDate).getTime()
+          : undefined,
       };
     } catch (error) {
       return null;
